@@ -3,48 +3,46 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import { getToken, removeToken } from "../../utils/token";
 import { toast } from "react-toastify";
 
 export default function Dashboard() {
-  const [userData, setUserData] = useState(null); // Stare locală pentru a reține datele utilizatorului autentificat.
-  const router = useRouter(); // Instanță a router-ului Next.js pentru redirecționare.
+  const [user, setUser] = useState(null); // Creează o stare locală pentru a gestiona datele utilizatorului conectat.
+  const router = useRouter(); // Inițializează hook-ul useRouter pentru navigare.
 
-  // Funcție asincronă pentru obținerea datelor utilizatorului
-  const fetchData = async () => {
-    const token = getToken();
+  // Folosește useEffect pentru a verifica autentificarea utilizatorului la montarea componentei.
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/protected-route`, // Face o cerere GET către ruta protejată a API-ului.
+          { withCredentials: true } // Trimite și cookie-urile pentru autentificare.
+        );
+        setUser(response.data.user); // Stochează datele utilizatorului în stare.
+      } catch {
+        toast.error("Acces interzis!");
+        router.push("/auth/login"); // Redirecționează utilizatorul către pagina de login.
+      }
+    };
 
-    if (!token) {
-      toast.error("Token lipsă!");
-      router.push("/auth/login"); // Redirecționează utilizatorul către pagina de login
-      return;
-    }
+    fetchUser(); // Apelează funcția pentru a obține datele utilizatorului.
+  }, []); // useEffect se execută o singură dată, la montarea componentei.
 
-    try {
-      // Efectuează o cerere GET către ruta protejată a API-ului
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/protected-route`,
-        { headers: { Authorization: `Bearer ${token}` } } // Trimite token-ul în antetul HTTP pentru autentificare
-      );
-      console.log("Response from API:", response.data);
-      setUserData(response.data.user); // Salvează datele utilizatorului în starea locală
-    } catch (error) {
-      toast.error("Acces interzis!");
-      router.push("/auth/login"); // Redirecționează utilizatorul către login dacă accesul este refuzat
-    }
+  // Funcția de deconectare a utilizatorului.
+  const handleLogout = async () => {
+    await axios.post(
+      `${process.env.NEXT_PUBLIC_API_URL}/logout`, // Face o cerere POST către ruta de logout a API-ului.
+      {},
+      { withCredentials: true } // Trimite cookie-urile pentru a invalida sesiunea utilizatorului.
+    );
+    router.push("/auth/login"); // Redirecționează utilizatorul către pagina de login după deconectare.
   };
 
-  // useEffect rulează fetchData la prima randare a componentului
-  useEffect(() => {
-    fetchData();
-  }, []); // Lista de dependențe este goală ([]), deci fetchData se execută doar o dată, la montarea componentei.
-
-  return userData ? (
+  return user ? ( // Dacă datele utilizatorului sunt disponibile, afișează dashboard-ul.
     <div>
-      <h1>Bun venit, {userData.name}!</h1>
-      <button onClick={() => removeToken()}>Deconectare</button>
+      <h1>Bun venit, {user.name}!</h1> {/* Afișează numele utilizatorului */}
+      <button onClick={handleLogout}>Deconectare</button>{" "}
     </div>
   ) : (
-    <p>Se încarcă...</p> // Afișează un mesaj de încărcare până când datele utilizatorului sunt disponibile.
+    <p>Se încarcă...</p>
   );
 }

@@ -6,8 +6,8 @@ import { register } from "../../../services/auth";
 import { toast } from "react-toastify";
 
 export default function Register() {
-  const router = useRouter();
-  const [user, setUser] = useState({ name: "", email: "", password: "" });
+  const router = useRouter(); // Inițializează hook-ul useRouter pentru navigare.
+  const [user, setUser] = useState({ name: "", email: "", password: "" }); // Creează o stare locală pentru a gestiona datele introduse de utilizator.
 
   const handleSubmit = async (e) => {
     e.preventDefault();

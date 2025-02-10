@@ -1,43 +1,43 @@
 "use client";
 
-import { useState } from "react";
+import axios from "axios";
 import { useRouter } from "next/navigation";
-import { login } from "../../../services/auth";
-import { saveToken } from "../../../utils/token";
 import { toast } from "react-toastify";
 
 export default function Login() {
-  const router = useRouter();
-  const [user, setUser] = useState({ email: "", password: "" }); // Stare pentru a reține email-ul și parola introduse de utilizator
+  const router = useRouter(); // Inițializează obiectul router pentru redirecționare după autentificare.
 
-  const handleSubmit = async (e) => {
-    e.preventDefault(); 
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    const { email, password } = e.target.elements; // Extrage câmpurile `email` și `password` din formular.
+
     try {
-      const data = await login(user); // Apelează funcția login pentru autentificare, trimițând datele utilizatorului
-      saveToken(data.token); // Salvează token-ul primit în localStorage
-      toast.success("Autentificare reușită!"); // Afișează o notificare de succes
-      router.push("/dashboard"); // Redirecționează utilizatorul către pagina de dashboard
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/login`, // Folosește variabila de mediu pentru a păstra URL-ul API flexibil.
+        {
+          email: email.value,
+          password: password.value,
+        },
+        { withCredentials: true } // Permite trimiterea cookie-urilor pentru autentificare.
+      );
+
+      toast.success("Autentificare reușită!");
+      router.push("/dashboard");
     } catch (error) {
-      // Afișează o notificare de eroare dacă autentificarea eșuează
-      toast.error(error.response?.data?.message || "Eroare la autentificare");
+      toast.error(error.response?.data?.message || "Eroare la autentificare!"); // Gestionare de erori cu fallback.
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input
-        type="email"
-        placeholder="Email"
-        onChange={(e) => setUser({ ...user, email: e.target.value })}
-        required
-      />
-      <input
-        type="password"
-        placeholder="Parola"
-        onChange={(e) => setUser({ ...user, password: e.target.value })}
-        required
-      />
+    <form onSubmit={handleLogin}>
+      {" "}
+      <input name="email" type="email" placeholder="Email" required />{" "}
+      <input name="password" type="password" placeholder="Parola" required />{" "}
       <button type="submit">Autentificare</button>
+      <a href={`${process.env.NEXT_PUBLIC_API_URL}/google`}>
+        {" "}
+        Autentificare cu Google
+      </a>
     </form>
   );
 }

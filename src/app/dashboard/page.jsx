@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
+import RouteOptimizer from "../../components/RouteOptimizer";
 
 export default function Dashboard() {
   const [user, setUser] = useState(null); // Creează o stare locală pentru a gestiona datele utilizatorului conectat.
@@ -40,7 +41,8 @@ export default function Dashboard() {
   return user ? ( // Dacă datele utilizatorului sunt disponibile, afișează dashboard-ul.
     <div>
       <h1>Bun venit, {user.name}!</h1> {/* Afișează numele utilizatorului */}
-      <button onClick={handleLogout}>Deconectare</button>{" "}
+      <button onClick={handleLogout}>Deconectare</button>
+      <RouteOptimizer />
     </div>
   ) : (
     <p>Se încarcă...</p>

@@ -14,9 +14,7 @@ const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 const LIBRARIES = ["places"]; // Evităm reîncărcarea LoadScript
 
 export default function RouteOptimizer() {
-  const [points, setPoints] = useState([
-    { address: "", priority: 0, pauseTime: 10 },
-  ]);
+  const [points, setPoints] = useState([]);
   const [start, setStart] = useState(
     "Strada Industriilor 191, 077041 Chiajna, Romania"
   );
@@ -39,14 +37,20 @@ export default function RouteOptimizer() {
     }
   };
 
+  const addPoint = () => {
+    setPoints([...points, { address: "", priority: 0, pauseTime: 10 }]);
+  };
+
+  const removePoint = (index) => {
+    setPoints(points.filter((_, i) => i !== index));
+  };
+
   const fetchOptimizedRoute = async () => {
     try {
       console.log("📤 Trimit cerere la backend:", { points, start, end });
 
       // Filtrăm doar punctele valide (eliminăm adresele goale)
-      const validPoints = points.filter(
-        (point) => point.address && point.address.trim() !== ""
-      );
+      const validPoints = points.filter((point) => point.address.trim() !== "");
 
       // Construim payload-ul JSON pentru request
       const requestBody = {
@@ -185,8 +189,12 @@ export default function RouteOptimizer() {
               }}
               placeholder="Timp pauză (min)"
             />
+
+            <button onClick={() => removePoint(index)}>🗑️ Șterge</button>
           </div>
         ))}
+
+        <button onClick={addPoint}>➕ Adaugă Punct Intermediar</button>
 
         <Autocomplete
           onLoad={(ref) => (endRef.current = ref)}

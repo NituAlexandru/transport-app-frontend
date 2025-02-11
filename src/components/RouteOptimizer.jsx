@@ -11,7 +11,7 @@ import {
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-const LIBRARIES = ["places"]; // Evităm reîncărcarea LoadScript
+const LIBRARIES = ["places"];
 
 export default function RouteOptimizer() {
   const [points, setPoints] = useState([]);
@@ -45,20 +45,23 @@ export default function RouteOptimizer() {
     setPoints(points.filter((_, i) => i !== index));
   };
 
+  const formatETA = (totalSeconds) => {
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+  };
+
   const fetchOptimizedRoute = async () => {
     try {
       console.log("📤 Trimit cerere la backend:", { points, start, end });
 
-      // Filtrăm doar punctele valide (eliminăm adresele goale)
       const validPoints = points.filter((point) => point.address.trim() !== "");
 
-      // Construim payload-ul JSON pentru request
       const requestBody = {
         start,
         end,
       };
 
-      // Adăugăm `points` DOAR dacă există puncte intermediare
       if (validPoints.length > 0) {
         requestBody.points = validPoints;
       }
@@ -81,25 +84,14 @@ export default function RouteOptimizer() {
         return;
       }
 
-      console.log("🔍 Adresele trimise către Google Directions API:", {
-        origin: start,
-        destination: end,
-        waypoints:
-          validPoints.length > 0
-            ? validPoints.map((point) => point.address)
-            : "N/A",
-      });
-
       const directionsService = new google.maps.DirectionsService();
 
-      // Creăm cererea pentru Google API
       const request = {
         origin: start,
         destination: end,
         travelMode: google.maps.TravelMode.DRIVING,
       };
 
-      // Adăugăm waypoints DOAR dacă există puncte intermediare
       if (validPoints.length > 0) {
         request.waypoints = validPoints.map((point) => ({
           location: point.address,
@@ -124,7 +116,7 @@ export default function RouteOptimizer() {
           (sum, leg) => sum + leg.duration.value,
           0
         );
-        setEta(`${Math.floor(totalEta / 60)} min`);
+        setEta(formatETA(totalEta));
       }
     } catch (error) {
       console.error("❌ Eroare la obținerea rutei:", error);
@@ -136,20 +128,26 @@ export default function RouteOptimizer() {
       <h1>Optimizare Rute</h1>
 
       <LoadScript googleMapsApiKey={GOOGLE_MAPS_API_KEY} libraries={LIBRARIES}>
-        <Autocomplete
-          onLoad={(ref) => (startRef.current = ref)}
-          onPlaceChanged={() =>
-            setStart(startRef.current?.getPlace()?.formatted_address)
-          }
-        >
-          <input
-            type="text"
-            value={start}
-            onChange={(e) => setStart(e.target.value)}
-            placeholder="Punct de plecare"
-          />
-        </Autocomplete>
+        <div>
+          <label>
+            <strong>Punct de Plecare:</strong>
+          </label>
+          <Autocomplete
+            onLoad={(ref) => (startRef.current = ref)}
+            onPlaceChanged={() =>
+              setStart(startRef.current?.getPlace()?.formatted_address)
+            }
+          >
+            <input
+              type="text"
+              value={start}
+              onChange={(e) => setStart(e.target.value)}
+              placeholder="Punct de plecare"
+            />
+          </Autocomplete>
+        </div>
 
+        {points.length > 0 && <h3>Puncte intermediare</h3>}
         {points.map((point, index) => (
           <div key={index}>
             <Autocomplete
@@ -185,22 +183,31 @@ export default function RouteOptimizer() {
 
         <button onClick={addPoint}>➕ Adaugă Punct Intermediar</button>
 
-        <Autocomplete
-          onLoad={(ref) => (endRef.current = ref)}
-          onPlaceChanged={() =>
-            setEnd(endRef.current?.getPlace()?.formatted_address)
-          }
-        >
-          <input
-            type="text"
-            value={end}
-            onChange={(e) => setEnd(e.target.value)}
-            placeholder="Destinație finală"
-          />
-        </Autocomplete>
+        <div>
+          <label>
+            <strong>Destinație Finală:</strong>
+          </label>
+          <Autocomplete
+            onLoad={(ref) => (endRef.current = ref)}
+            onPlaceChanged={() =>
+              setEnd(endRef.current?.getPlace()?.formatted_address)
+            }
+          >
+            <input
+              type="text"
+              value={end}
+              onChange={(e) => setEnd(e.target.value)}
+              placeholder="Destinație finală"
+            />
+          </Autocomplete>
+        </div>
 
         <button onClick={fetchOptimizedRoute}>Optimizează Ruta</button>
-        {eta && <p>ETA estimat: {eta}</p>}
+        {eta && (
+          <p>
+            <strong>ETA estimat:</strong> {eta}
+          </p>
+        )}
 
         <GoogleMap
           center={{ lat: 44.4268, lng: 26.1025 }}

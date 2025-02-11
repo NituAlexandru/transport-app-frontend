@@ -18,7 +18,9 @@ export default function RouteOptimizer() {
   const [start, setStart] = useState(
     "Strada Industriilor 191, 077041 Chiajna, Romania"
   );
-  const [end, setEnd] = useState("Strada Nițu Vasile 68, București 041548");
+  const [end, setEnd] = useState(
+    "Strada Industriilor 191, 077041 Chiajna, Romania"
+  );
   const [directions, setDirections] = useState(null);
   const [eta, setEta] = useState(null);
 

@@ -170,17 +170,6 @@ export default function RouteOptimizer() {
 
             <input
               type="number"
-              value={point.priority}
-              onChange={(e) => {
-                let newPoints = [...points];
-                newPoints[index].priority = parseInt(e.target.value);
-                setPoints(newPoints);
-              }}
-              placeholder="Prioritate"
-            />
-
-            <input
-              type="number"
               value={point.pauseTime}
               onChange={(e) => {
                 let newPoints = [...points];

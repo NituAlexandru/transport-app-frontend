@@ -22,104 +22,80 @@ export default function RouteOptimizer() {
     "Strada Industriilor 191, 077041 Chiajna, Romania"
   );
   const [directions, setDirections] = useState(null);
-  const [eta, setEta] = useState(null);
+  const [etaNoTraffic, setEtaNoTraffic] = useState("");
+  const [etaWithTraffic, setEtaWithTraffic] = useState("");
+  const [totalDistance, setTotalDistance] = useState("");
+  const [departureTime, setDepartureTime] = useState("");
 
   const startRef = useRef(null);
   const endRef = useRef(null);
   const autocompleteRefs = useRef([]);
 
-  const handlePlaceSelect = (index) => {
-    if (autocompleteRefs.current[index]) {
-      const place = autocompleteRefs.current[index].getPlace();
-      if (!place || !place.formatted_address) return;
+  // ✅ Funcție pentru conversia duratei în format corect HH:mm
+  const parseDuration = (durationString) => {
+    if (!durationString) return "N/A";
 
-      const newPoints = [...points];
-      newPoints[index].address = place.formatted_address;
-      setPoints(newPoints);
+    const regex = /(\d+)\s*(h|ore|min)/g;
+    let totalMinutes = 0;
+    let match;
+
+    while ((match = regex.exec(durationString)) !== null) {
+      if (match[2] === "h" || match[2] === "ore") {
+        totalMinutes += parseInt(match[1]) * 60;
+      } else if (match[2] === "min") {
+        totalMinutes += parseInt(match[1]);
+      }
     }
-  };
 
-  const addPoint = () => {
-    setPoints([...points, { address: "", priority: 0, pauseTime: 10 }]);
-  };
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
 
-  const removePoint = (index) => {
-    setPoints(points.filter((_, i) => i !== index));
-  };
-
-  const formatETA = (totalSeconds) => {
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+    return hours > 0 ? `${hours}h ${minutes}min` : `${minutes}min`;
   };
 
   const fetchOptimizedRoute = async () => {
     try {
-      console.log("📤 Trimit cerere la backend:", { points, start, end });
+      console.log("📤 Trimit cerere la backend pentru optimizare...");
 
       const validPoints = points.filter((point) => point.address.trim() !== "");
 
-      const requestBody = {
+      const response = await axios.post(`${API_URL}/optimize-route`, {
         start,
         end,
-      };
-
-      if (validPoints.length > 0) {
-        requestBody.points = validPoints;
-      }
-
-      console.log("📤 Cerere finală către backend:", requestBody);
-
-      const response = await axios.post(
-        `${API_URL}/optimize-route`,
-        requestBody
-      );
+        departureTime,
+        points: validPoints.length > 0 ? validPoints : [],
+      });
 
       console.log("✅ Răspuns primit de la backend:", response.data);
 
-      if (
-        !response.data ||
-        !response.data.routes ||
-        response.data.routes.length === 0
-      ) {
-        console.error("🚨 Răspuns invalid de la backend:", response.data);
-        return;
+      if (response.data.eta_no_traffic) {
+        setEtaNoTraffic(parseDuration(response.data.eta_no_traffic));
+        setEtaWithTraffic(parseDuration(response.data.eta_with_traffic));
+        setTotalDistance(response.data.distance_total);
       }
 
-      const directionsService = new google.maps.DirectionsService();
+      const orderedWaypoints = response.data.orderedPoints.map((address) => ({
+        location: address,
+        stopover: true,
+      }));
 
-      const request = {
-        origin: start,
-        destination: end,
-        travelMode: google.maps.TravelMode.DRIVING,
-      };
-
-      if (validPoints.length > 0) {
-        request.waypoints = validPoints.map((point) => ({
-          location: point.address,
-          stopover: true,
-        }));
-        request.optimizeWaypoints = true;
-      }
-
-      console.log("📤 Trimit cerere către Google Directions Service:", request);
-
-      directionsService.route(request, (result, status) => {
-        if (status === google.maps.DirectionsStatus.OK) {
-          setDirections(result);
-        } else {
-          console.error("❌ Eroare la generarea traseului:", status);
-          alert(`Google Maps nu a putut genera ruta. Eroare: ${status}`);
+      const directionsService = new window.google.maps.DirectionsService();
+      directionsService.route(
+        {
+          origin: start,
+          destination: end,
+          travelMode: window.google.maps.TravelMode.DRIVING,
+          waypoints: orderedWaypoints,
+        },
+        (result, status) => {
+          if (status === window.google.maps.DirectionsStatus.OK) {
+            setDirections(result);
+            console.log("📍 Harta actualizată cu traseul optimizat.");
+          } else {
+            console.error("❌ Eroare la generarea traseului:", status);
+          }
         }
-      });
-
-      if (response.data.routes.length > 0) {
-        let totalEta = response.data.routes[0].legs.reduce(
-          (sum, leg) => sum + leg.duration.value,
-          0
-        );
-        setEta(formatETA(totalEta));
-      }
+      );
     } catch (error) {
       console.error("❌ Eroare la obținerea rutei:", error);
     }
@@ -128,6 +104,17 @@ export default function RouteOptimizer() {
   return (
     <div>
       <h1>Optimizare Rute</h1>
+
+      <div>
+        <label>
+          <strong>Ora de plecare:</strong>
+        </label>
+        <input
+          type="datetime-local"
+          value={departureTime}
+          onChange={(e) => setDepartureTime(e.target.value)}
+        />
+      </div>
 
       <LoadScript googleMapsApiKey={GOOGLE_MAPS_API_KEY} libraries={LIBRARIES}>
         <div>
@@ -154,7 +141,14 @@ export default function RouteOptimizer() {
           <div key={index}>
             <Autocomplete
               onLoad={(ref) => (autocompleteRefs.current[index] = ref)}
-              onPlaceChanged={() => handlePlaceSelect(index)}
+              onPlaceChanged={() => {
+                const place = autocompleteRefs.current[index].getPlace();
+                if (place && place.formatted_address) {
+                  let newPoints = [...points];
+                  newPoints[index].address = place.formatted_address;
+                  setPoints(newPoints);
+                }
+              }}
             >
               <input
                 type="text"
@@ -179,11 +173,21 @@ export default function RouteOptimizer() {
               placeholder="Timp pauză (min)"
             />
 
-            <button onClick={() => removePoint(index)}>🗑️ Șterge</button>
+            <button
+              onClick={() => setPoints(points.filter((_, i) => i !== index))}
+            >
+              🗑️ Șterge
+            </button>
           </div>
         ))}
 
-        <button onClick={addPoint}>➕ Adaugă Punct Intermediar</button>
+        <button
+          onClick={() =>
+            setPoints([...points, { address: "", priority: 0, pauseTime: 10 }])
+          }
+        >
+          ➕ Adaugă Punct Intermediar
+        </button>
 
         <div>
           <label>
@@ -205,10 +209,19 @@ export default function RouteOptimizer() {
         </div>
 
         <button onClick={fetchOptimizedRoute}>Optimizează Ruta</button>
-        {eta && (
-          <p>
-            <strong>ETA estimat:</strong> {eta}
-          </p>
+
+        {etaNoTraffic && (
+          <div>
+            <p>
+              <strong>ETA:</strong> {etaNoTraffic}
+            </p>
+            <p>
+              <strong>ETA cu trafic:</strong> {etaWithTraffic}
+            </p>
+            <p>
+              <strong>Distanța totală:</strong> {totalDistance}
+            </p>
+          </div>
         )}
 
         <GoogleMap
@@ -216,16 +229,7 @@ export default function RouteOptimizer() {
           zoom={12}
           mapContainerStyle={{ height: "400px", width: "100%" }}
         >
-          {directions && directions.routes && directions.routes.length > 0 && (
-            <DirectionsRenderer
-              directions={directions}
-              options={{
-                suppressMarkers: false,
-                preserveViewport: true,
-                draggable: true,
-              }}
-            />
-          )}
+          {directions && <DirectionsRenderer directions={directions} />}
         </GoogleMap>
       </LoadScript>
     </div>

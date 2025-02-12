@@ -213,13 +213,13 @@ export default function RouteOptimizer() {
         {etaNoTraffic && (
           <div>
             <p>
-              <strong>ETA:</strong> {etaNoTraffic}
+              <strong>⏳ETA:</strong> {etaNoTraffic}
             </p>
             <p>
-              <strong>ETA cu trafic:</strong> {etaWithTraffic}
+              <strong>🚦ETA cu trafic:</strong> {etaWithTraffic}
             </p>
             <p>
-              <strong>Distanța totală:</strong> {totalDistance}
+              <strong>🏁Distanța totală:</strong> {totalDistance}
             </p>
           </div>
         )}

@@ -25,6 +25,8 @@ export default function RouteOptimizer() {
   const [etaNoTraffic, setEtaNoTraffic] = useState("");
   const [etaWithTraffic, setEtaWithTraffic] = useState("");
   const [totalDistance, setTotalDistance] = useState("");
+  const [totalUnloadTime, setTotalUnloadTime] = useState(0);
+  const [totalDeliveryTime, setTotalDeliveryTime] = useState("");
   const [departureTime, setDepartureTime] = useState("");
 
   const startRef = useRef(null);
@@ -58,6 +60,12 @@ export default function RouteOptimizer() {
       console.log("📤 Trimit cerere la backend pentru optimizare...");
 
       const validPoints = points.filter((point) => point.address.trim() !== "");
+      const totalUnloadMinutes = validPoints.reduce(
+        (sum, point) => sum + (point.pauseTime || 0),
+        0
+      );
+
+      setTotalUnloadTime(totalUnloadMinutes); // Setăm timpul total de descărcare
 
       const response = await axios.post(`${API_URL}/optimize-route`, {
         start,
@@ -69,9 +77,17 @@ export default function RouteOptimizer() {
       console.log("✅ Răspuns primit de la backend:", response.data);
 
       if (response.data.eta_no_traffic) {
-        setEtaNoTraffic(parseDuration(response.data.eta_no_traffic));
-        setEtaWithTraffic(parseDuration(response.data.eta_with_traffic));
+        const etaWithoutTraffic = parseDuration(response.data.eta_no_traffic);
+        const etaWithTraffic = parseDuration(response.data.eta_with_traffic);
+
+        setEtaNoTraffic(etaWithoutTraffic);
+        setEtaWithTraffic(etaWithTraffic);
         setTotalDistance(response.data.distance_total);
+
+        // Calculăm timpul total de livrare (ETA cu trafic + timp de descărcare)
+        const totalDeliveryMinutes =
+          (parseInt(response.data.eta_with_traffic) || 0) + totalUnloadMinutes;
+        setTotalDeliveryTime(parseDuration(`${totalDeliveryMinutes} min`));
       }
 
       const orderedWaypoints = response.data.orderedPoints.map((address) => ({
@@ -83,7 +99,7 @@ export default function RouteOptimizer() {
       directionsService.route(
         {
           origin: start,
-          destination: end,
+          destination: end, // 🔥 DESTINAȚIA FINALĂ ESTE ÎNAPOI!
           travelMode: window.google.maps.TravelMode.DRIVING,
           waypoints: orderedWaypoints,
         },
@@ -182,9 +198,7 @@ export default function RouteOptimizer() {
         ))}
 
         <button
-          onClick={() =>
-            setPoints([...points, { address: "", priority: 0, pauseTime: 10 }])
-          }
+          onClick={() => setPoints([...points, { address: "", pauseTime: 10 }])}
         >
           ➕ Adaugă Punct Intermediar
         </button>
@@ -217,6 +231,13 @@ export default function RouteOptimizer() {
             </p>
             <p>
               <strong>🚦ETA cu trafic:</strong> {etaWithTraffic}
+            </p>
+            <p>
+              <strong>📦 Timp total descărcare:</strong> {totalUnloadTime} min
+            </p>
+            <p>
+              <strong>🕒 Timp total (livrare + descărcare):</strong>{" "}
+              {totalDeliveryTime}
             </p>
             <p>
               <strong>🏁Distanța totală:</strong> {totalDistance}

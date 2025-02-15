@@ -1,0 +1,98 @@
+.formContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.label {
+  font-size: 1rem;
+  color: #333;
+}
+
+.input {
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* Stil pentru fiecare grup de punct intermediar */
+.pointGroup {
+  border: 1px solid #eee;
+  padding: 0.5rem;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Rândul pentru adresa și butonul de ștergere */
+.addressRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Butonul de ștergere – folosește "X" */
+.deleteButton {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  color: #ff4d4d; /* culoare roșie pentru contrast */
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+/* Rândul pentru timpul de descarcare */
+.pauseRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Label și input pentru timpul de descarcare pe același rând */
+.pauseLabel {
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.pauseInput {
+  width: 4rem;
+  padding: 0.25rem;
+  font-size: 0.9rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* Butonul de adăugare */
+.addButton {
+  background-color: #0070f3;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  width: fit-content;
+}
+
+/* Butonul de submit */
+.submitButton {
+  background-color: #28a745;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+  align-self: flex-start;
+}

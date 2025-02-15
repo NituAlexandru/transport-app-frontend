@@ -1,0 +1,15 @@
+/* RouteOptimizer.module.css */
+
+.optimizerContainer {
+  background-color: #fff;
+  padding: 1rem;
+  border: 1px solid #eee;
+  border-radius: 4px;
+}
+.rowContainer {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem; /* spațiu între elemente */
+  align-items: flex-start; /* sau center, după preferințe */
+  margin-bottom: 1rem;
+}

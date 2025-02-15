@@ -4,47 +4,49 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
-import RouteOptimizer from "../../components/RouteOptimizer";
+import Navbar from "../../components/Navbar/Navbar";
+import RouteOptimizer from "../../components/RouteOptimizer/RouteOptimizer/RouteOptimizer";
+import Aside from "../../components/Aside/Aside";
+import styles from "./Dashboard.module.css";
 
 export default function Dashboard() {
-  const [user, setUser] = useState(null); // Creează o stare locală pentru a gestiona datele utilizatorului conectat.
-  const router = useRouter(); // Inițializează hook-ul useRouter pentru navigare.
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
-  // Folosește useEffect pentru a verifica autentificarea utilizatorului la montarea componentei.
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/protected-route`, // Face o cerere GET către ruta protejată a API-ului.
-          { withCredentials: true } // Trimite și cookie-urile pentru autentificare.
+          `${process.env.NEXT_PUBLIC_API_URL}/protected-route`,
+          { withCredentials: true }
         );
-        setUser(response.data.user); // Stochează datele utilizatorului în stare.
+        setUser(response.data.user);
       } catch {
         toast.error("Acces interzis!");
-        router.push("/auth/login"); // Redirecționează utilizatorul către pagina de login.
+        router.push("/auth/login");
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchUser(); // Apelează funcția pentru a obține datele utilizatorului.
-  }, []); // useEffect se execută o singură dată, la montarea componentei.
+    fetchUser();
+  }, []);
 
-  // Funcția de deconectare a utilizatorului.
-  const handleLogout = async () => {
-    await axios.post(
-      `${process.env.NEXT_PUBLIC_API_URL}/logout`, // Face o cerere POST către ruta de logout a API-ului.
-      {},
-      { withCredentials: true } // Trimite cookie-urile pentru a invalida sesiunea utilizatorului.
-    );
-    router.push("/auth/login"); // Redirecționează utilizatorul către pagina de login după deconectare.
-  };
+  if (loading) return <p>Se încarcă...</p>;
 
-  return user ? ( // Dacă datele utilizatorului sunt disponibile, afișează dashboard-ul.
-    <div>
-      <h1>Bun venit, {user.name}!</h1> {/* Afișează numele utilizatorului */}
-      <button onClick={handleLogout}>Deconectare</button>
-      <RouteOptimizer />
+  return (
+    <div className={styles.layout}>
+      <header className={styles.navbarWrapper}>
+        <Navbar user={user} setUser={setUser} />
+      </header>
+
+      <main className={styles.contentContainer}>
+        <Aside />
+        <div className={styles.mainContent}>
+          <RouteOptimizer />
+        </div>
+      </main>
     </div>
-  ) : (
-    <p>Se încarcă...</p>
   );
 }

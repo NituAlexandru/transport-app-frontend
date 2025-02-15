@@ -1,0 +1,26 @@
+/* Dashboard.module.css */
+
+/* Layout vertical pe toată înălțimea ecranului */
+.layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Navbar-ul să fie pe toată lățimea, cu o linie sub el */
+.navbarWrapper {
+  width: 100%;
+  border-bottom: 1px solid #ccc;
+}
+
+/* Două coloane orizontale: aside + conținut */
+.contentContainer {
+  display: flex;
+  flex: 1; /* ocupă restul spațiului pe verticală */
+}
+
+/* Conținutul principal (dreapta) */
+.mainContent {
+  flex: 1; /* se întinde pe toată lățimea rămasă */
+  padding: 1rem;
+}

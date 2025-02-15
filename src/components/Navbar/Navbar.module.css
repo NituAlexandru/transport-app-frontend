@@ -1,0 +1,21 @@
+/* Navbar.module.css */
+
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  background-color: #ffffff; /* sau ce culoare vrei */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.logo {
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}

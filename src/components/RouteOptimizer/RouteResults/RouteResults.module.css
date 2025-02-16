@@ -1,19 +1,32 @@
-/* RouteResults.module.css */
-.resultsContainer {
-  padding: 1rem;
-  background-color: #f7f7f7; /* o nuanță clară */
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  max-width: 30rem;
-  margin: 1rem auto; /* centrat pe ecran */
+.shareSection {
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.resultsContainer p {
-  margin: 0.5rem 0;
-  font-size: 1rem;
-  color: #333;
-}
-
-.resultsContainer strong {
+.mapsLink {
   color: #0070f3;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s;
+}
+
+.mapsLink:hover {
+  color: #005bb5;
+}
+
+.copyButton {
+  background: #0070f3;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.3s;
+}
+
+.copyButton:hover {
+  background: #005bb5;
 }

@@ -24,6 +24,25 @@ export default function useRouteOptimization() {
     return `${mins} min`;
   };
 
+  const parseEtaStringToMinutes = (etaString) => {
+    if (!etaString) return 0;
+    let minutes = 0;
+
+    // Extrage orele: "1 ore" sau "1 hr"
+    const hoursMatch = etaString.match(/(\d+)\s*(ore|hr)/i);
+    if (hoursMatch) {
+      minutes += parseInt(hoursMatch[1], 10) * 60;
+    }
+
+    // Extrage minutele: "2 min"
+    const minutesMatch = etaString.match(/(\d+)\s*min/i);
+    if (minutesMatch) {
+      minutes += parseInt(minutesMatch[1], 10);
+    }
+
+    return minutes;
+  };
+
   const fetchOptimizedRoute = async () => {
     try {
       if (!start || !end) {
@@ -41,9 +60,7 @@ export default function useRouteOptimization() {
       console.log("✅ Răspuns API:", response.data);
 
       const etaWithTrafficStr = response.data.eta_with_traffic || "0 min";
-      const etaWithTrafficMinutes =
-        (parseInt(etaWithTrafficStr.split(" ")[0]) || 0) * 60 +
-        (parseInt(etaWithTrafficStr.split(" ")[2]) || 0);
+      const etaWithTrafficMinutes = parseEtaStringToMinutes(etaWithTrafficStr);
 
       const totalUnloadTime = points.reduce(
         (sum, point) => sum + (point.pauseTime || 0),
@@ -57,6 +74,9 @@ export default function useRouteOptimization() {
         distance_total: response.data.distance_total || "N/A",
         totalUnloadTime: parseDuration(totalUnloadTime),
         totalDeliveryTime: parseDuration(totalDeliveryTime),
+        start,
+        end,
+        orderedPoints: response.data.orderedPoints || [],
       });
 
       if (

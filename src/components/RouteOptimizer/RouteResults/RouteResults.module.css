@@ -1,21 +1,48 @@
+.resultsContainer {
+  padding: 1rem;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  max-width: 30rem;
+  margin: 1rem auto;
+  font-family: Arial, sans-serif;
+  color: #333;
+}
+
+.resultsContainer p {
+  margin: 0.5rem 0;
+  line-height: 1.4;
+  font-size: 1rem;
+}
+
+.resultsContainer strong {
+  color: #0070f3;
+}
+
+/* Zona de share (link + buton) */
 .shareSection {
   margin-top: 1rem;
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  border-top: 1px solid #ddd;
+  padding-top: 0.75rem;
 }
 
+/* Stil pentru link-ul către Google Maps */
 .mapsLink {
   color: #0070f3;
   text-decoration: none;
   font-weight: 500;
   transition: color 0.3s;
+  font-size: 0.95rem;
 }
 
 .mapsLink:hover {
   color: #005bb5;
 }
 
+/* Butonul de copiere a link-ului */
 .copyButton {
   background: #0070f3;
   color: #fff;

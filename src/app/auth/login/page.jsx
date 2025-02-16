@@ -4,6 +4,9 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { useState } from "react";
+import Link from "next/link";
+
+import styles from "../auth.module.css"; // Importăm modulul CSS din folderul părinte (../)
 
 export default function Login() {
   const router = useRouter();
@@ -15,7 +18,6 @@ export default function Login() {
     setLoading(true);
 
     try {
-      // 🔹 1. Facem login și așteptăm răspunsul
       await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/login`,
         { email: email.value, password: password.value },
@@ -24,7 +26,7 @@ export default function Login() {
 
       toast.success("Autentificare reușită!");
 
-      // 🔹 2. Așteptăm ca browserul să trimită cookie-ul și verificăm user-ul
+      // Verificăm user-ul prin /protected-route
       const fetchUser = async () => {
         try {
           const response = await axios.get(
@@ -41,11 +43,11 @@ export default function Login() {
       for (let i = 0; i < 5; i++) {
         user = await fetchUser();
         if (user) break;
-        await new Promise((res) => setTimeout(res, 200)); // Așteptăm 200ms
+        await new Promise((res) => setTimeout(res, 200));
       }
 
       if (user) {
-        router.push("/dashboard"); // 🔥 Navigăm doar când avem un user valid
+        router.push("/dashboard");
       } else {
         toast.error("Eroare la autentificare. Reîncercați.");
       }
@@ -57,15 +59,56 @@ export default function Login() {
   };
 
   return (
-    <form onSubmit={handleLogin}>
-      <input name="email" type="email" placeholder="Email" required />
-      <input name="password" type="password" placeholder="Parola" required />
-      <button type="submit" disabled={loading}>
-        {loading ? "Autentificare..." : "Autentificare"}
-      </button>
-      <a href={`${process.env.NEXT_PUBLIC_API_URL}/google`}>
-        Autentificare cu Google
-      </a>
-    </form>
+    <div className={styles.authContainer}>
+      <div className={styles.authCard}>
+        <h2 className={styles.title}>Log In</h2>
+
+        <form onSubmit={handleLogin}>
+          <div className={styles.formGroup}>
+            <label htmlFor="email">Email</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              className={styles.inputField}
+              placeholder="Email"
+              required
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label htmlFor="password">Parola</label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              className={styles.inputField}
+              placeholder="Parola"
+              required
+            />
+          </div>
+
+          <button type="submit" className={styles.button} disabled={loading}>
+            {loading ? "Autentificare..." : "Autentificare"}
+          </button>
+        </form>
+
+        {/* Buton/link pentru Google */}
+        <a
+          href={`${process.env.NEXT_PUBLIC_API_URL}/google`}
+          className={styles.link}
+        >
+          Autentificare cu Google
+        </a>
+
+        {/* Link către Register */}
+        <div className={styles.switchSection}>
+          Nu ai cont?
+          <Link href="/auth/register" className={styles.switchLink}>
+            Înregistrează-te
+          </Link>
+        </div>
+      </div>
+    </div>
   );
 }

@@ -26,7 +26,7 @@ function AutoCompleteInput({ value, onChange, placeholder }) {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className={styles.input}
+        className={`${styles.input} ${styles.inputCustom}`}
       />
     </Autocomplete>
   );
@@ -56,7 +56,7 @@ export default function RouteForm({
           showTimeSelect
           dateFormat="Pp"
           placeholderText="Selectează ora de plecare"
-          className={styles.input}
+          className={`${styles.input} ${styles.dateTimeInput}`}
         />
       </div>
 
@@ -96,7 +96,7 @@ export default function RouteForm({
           {/* Rândul cu label-ul și inputul pentru timpul de descarcare */}
           <div className={styles.pauseRow}>
             <label className={styles.pauseLabel}>
-              <strong>Timp de descarcare (min):</strong>
+              <strong>Timp descarcare (min):</strong>
             </label>
             <input
               type="number"

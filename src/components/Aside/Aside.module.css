@@ -3,4 +3,35 @@
   background-color: #f5f5f5;
   padding: 1rem;
   border-right: 1px solid #ccc;
+  min-height: 100vh;
+}
+
+.navList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.navItem {
+  position: relative;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.navItem::after {
+  content: "";
+  display: block;
+  margin-top: 0.5rem;
+  border-bottom: 1px solid #ccc;
+}
+
+.navLink {
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+  transition: color 0.3s;
+}
+
+.navLink:hover {
+  color: #0070f3;
 }

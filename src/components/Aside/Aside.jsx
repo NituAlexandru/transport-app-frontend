@@ -1,42 +1,40 @@
 "use client";
 
 import Link from "next/link";
+import styles from "./Aside.module.css";
 
 export default function Aside() {
   return (
-    <aside style={asideStyle}>
+    <aside className={styles.asideContainer}>
       <nav>
-        <ul style={ulStyle}>
-          <li>
-            <Link href="/dashboard">Dashboard</Link>
+        <ul className={styles.navList}>
+          <li className={styles.navItem}>
+            <Link href="/dashboard" className={styles.navLink}>
+              Dashboard
+            </Link>
           </li>
-          <li>
-            <Link href="/clienti">Clienti</Link>
+          <li className={styles.navItem}>
+            <Link href="/clienti" className={styles.navLink}>
+              Clienti
+            </Link>
           </li>
-          <li>
-            <Link href="/produse">Produse</Link>
+          <li className={styles.navItem}>
+            <Link href="/produse" className={styles.navLink}>
+              Produse
+            </Link>
           </li>
-          <li>
-            <Link href="/comenzi">Comenzi</Link>
+          <li className={styles.navItem}>
+            <Link href="/comenzi" className={styles.navLink}>
+              Comenzi
+            </Link>
+          </li>
+          <li className={styles.navItem}>
+            <Link href="/rute" className={styles.navLink}>
+              Optimizeaza Rute
+            </Link>
           </li>
         </ul>
       </nav>
     </aside>
   );
 }
-
-// Stiluri inline minimale (pentru demo).
-// Poți folosi module CSS sau Tailwind pentru a le adapta după preferințe.
-const asideStyle = {
-  background: "#f5f5f5",
-  width: "220px",
-  padding: "1rem",
-  borderRight: "1px solid #ccc",
-  minHeight: "100vh",
-};
-
-const ulStyle = {
-  listStyle: "none",
-  padding: 0,
-  margin: 0,
-};

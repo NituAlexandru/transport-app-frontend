@@ -1,10 +1,12 @@
 "use client";
 
+import styles from "./RouteResults.module.css";
+
 export default function RouteResults({ routeData }) {
   if (!routeData || Object.keys(routeData).length === 0) return null; // 🔥 Nu afișează nimic dacă nu sunt date
 
   return (
-    <div>
+    <div className={styles.resultsContainer}>
       <p>
         <strong>🚦 ETA:</strong> {routeData.eta_with_traffic}
       </p>

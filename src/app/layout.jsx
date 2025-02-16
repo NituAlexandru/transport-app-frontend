@@ -1,5 +1,5 @@
-import Head from "next/head";
 import Script from "next/script";
+import "./styles/global.css";
 
 export default function RootLayout({ children }) {
   return (

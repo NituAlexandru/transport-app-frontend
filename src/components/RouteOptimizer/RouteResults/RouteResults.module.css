@@ -1,0 +1,19 @@
+/* RouteResults.module.css */
+.resultsContainer {
+  padding: 1rem;
+  background-color: #f7f7f7; /* o nuanță clară */
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  max-width: 30rem;
+  margin: 1rem auto; /* centrat pe ecran */
+}
+
+.resultsContainer p {
+  margin: 0.5rem 0;
+  font-size: 1rem;
+  color: #333;
+}
+
+.resultsContainer strong {
+  color: #0070f3;
+}

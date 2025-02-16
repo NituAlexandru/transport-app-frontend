@@ -4,3 +4,4 @@ export default function Home() {
   redirect("/auth/login");
   return null;
 }
+// ------------
